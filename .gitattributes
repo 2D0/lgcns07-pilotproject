@@ -1,0 +1,4 @@
+# 줄바꿈을 LF로 통일 (윈도우 · 맥 섞여도 "줄 전체가 바뀜" 안 생기게)
+* text=auto eol=lf
+*.ico binary
+*.png binary
