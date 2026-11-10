@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =========================================================
+   1. shadcn 기본 이름 → 피그마 "소소 Dark" 색 연결
+   (bg-background · text-foreground · bg-card · border-border · bg-primary …)
+   ========================================================= */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-noto-sans-kr);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-noto-sans-kr);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+}
+
+/* =========================================================
+   2. 소소스터디에만 있는 색 이름 (피그마 변수와 짝)
+   예: bg-inset · text-subtle · text-link · bg-status-open-subtle
+       bg-category-frontend · bg-category-frontend-subtle
+   ========================================================= */
+@theme {
+  --color-inset: #010409; /* bg/inset */
+  --color-subtle: #6e7681; /* fg/subtle */
+  --color-link: #4493f8; /* accent/fg */
+  --color-link-emphasis: #1f6feb; /* accent/emphasis */
+  --color-link-subtle: #13233a; /* bg/accent-subtle */
+  --color-marker: #f78166; /* accent/marker (사이드바 선택 막대) */
+  --color-attention: #d29922; /* attention/fg */
+  --color-danger-subtle: #25171c; /* bg/danger-subtle */
+
+  /* 모집 상태: 모집 중 = 초록, 마감 = 보라 */
+  --color-status-open: #3fb950; /* success/fg */
+  --color-status-open-subtle: #12261e; /* bg/success-subtle */
+  --color-status-closed: #a371f7; /* done/fg */
+  --color-status-closed-subtle: #252139; /* bg/done-subtle */
+
+  /* 분야(카테고리) 색 — 상태 색(초록·보라·빨강)과 겹치지 않게 */
+  --color-category-frontend: #e3b341;
+  --color-category-frontend-subtle: #2d291d;
+  --color-category-backend: #ffa657;
+  --color-category-backend-subtle: #312721;
+  --color-category-algorithm: #79c0ff;
+  --color-category-algorithm-subtle: #1d2b3a;
+  --color-category-cs: #f778ba;
+  --color-category-cs-subtle: #30202f;
+  --color-category-interview: #56d4dd;
+  --color-category-interview-subtle: #182e35;
+}
+
+/* =========================================================
+   3. 실제 색 값 (다크 한 가지만 씀)
+   ========================================================= */
+:root {
+  color-scheme: dark;
+  --radius: 0.375rem; /* 6px */
+  --background: #0d1117; /* bg/canvas */
+  --foreground: #e6edf3; /* fg/default */
+  --card: #161b22; /* bg/default */
+  --card-foreground: #e6edf3;
+  --popover: #161b22;
+  --popover-foreground: #e6edf3;
+  --primary: #238636; /* success/emphasis — 주 버튼 */
+  --primary-foreground: #ffffff; /* fg/on-emphasis */
+  --secondary: #21262d; /* bg/muted */
+  --secondary-foreground: #e6edf3;
+  --muted: #21262d; /* bg/muted */
+  --muted-foreground: #8b949e; /* fg/muted */
+  --accent: #21262d;
+  --accent-foreground: #e6edf3;
+  --destructive: #f85149; /* danger/fg */
+  --border: #30363d; /* border/default */
+  --input: #30363d;
+  --ring: #1f6feb; /* accent/emphasis */
+  --chart-1: #3fb950;
+  --chart-2: #4493f8;
+  --chart-3: #a371f7;
+  --chart-4: #d29922;
+  --chart-5: #f85149;
+  --sidebar: #161b22; /* bg/default */
+  --sidebar-foreground: #e6edf3;
+  --sidebar-primary: #238636;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #21262d; /* 선택된 메뉴 배경 */
+  --sidebar-accent-foreground: #e6edf3;
+  --sidebar-border: #21262d; /* border/muted */
+  --sidebar-ring: #1f6feb;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
