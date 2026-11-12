@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { LoginForm } from "@/components/organisms/login-form";
 import { AuthCard } from "@/components/templates/auth-card";
+import { ResetOnLeave } from "@/components/templates/reset-on-leave";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAuthNotice } from "@/config/auth-notice";
 import { routes } from "@/config/routes";
@@ -44,9 +45,12 @@ async function LoginFormWithParams({
 }: Pick<PageProps<"/login">, "searchParams">) {
   const { callbackUrl, notice } = await searchParams;
   return (
-    <LoginForm
-      callbackUrl={safeCallbackUrl(callbackUrl)}
-      notice={getAuthNotice(notice)}
-    />
+    // 🔒 화면을 떠나면 입력한 이메일 · 비밀번호를 지워요
+    <ResetOnLeave>
+      <LoginForm
+        callbackUrl={safeCallbackUrl(callbackUrl)}
+        notice={getAuthNotice(notice)}
+      />
+    </ResetOnLeave>
   );
 }
