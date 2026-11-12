@@ -131,16 +131,16 @@ export async function signupAction(
   redirect(routes.loginNotice("signed-up")); // 가입 → 로그인 화면에 "가입했어요"
 }
 
-// ── 아이디(이메일) 찾기 ──
+// ── 이메일 찾기 ──
 
 export type FindIdState = {
   errors?: Partial<Record<keyof FindIdValues, string>>;
   formError?: string;
-  /** 찾은 결과 — 🔒 가려진 이메일만 (전체 주소는 서버가 그 이메일로 보내요) */
-  result?: { maskedEmails: string[]; emailed: boolean };
+  /** 찾은 결과 — 🔒 가려진 이메일만 */
+  result?: { maskedEmails: string[] };
 };
 
-// [아이디 찾기] — <form action={…}> + useActionState로 불러요
+// [이메일 찾기] — <form action={…}> + useActionState로 불러요
 export async function findIdAction(
   _previous: FindIdState,
   formData: FormData,

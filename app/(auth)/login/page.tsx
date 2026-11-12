@@ -26,7 +26,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
           <p className="mt-1 text-xs text-muted-foreground">
             가입한 이메일이 기억나지 않나요?{" "}
             <Link href={routes.findId} className="text-link hover:underline">
-              아이디 찾기
+              이메일 찾기
             </Link>
           </p>
         </div>

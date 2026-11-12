@@ -69,7 +69,7 @@ export const signupSchema = z
   });
 
 /**
- * 아이디(이메일) 찾기 폼 — 닉네임으로 찾아요.
+ * 이메일 찾기 폼 — 닉네임으로 찾아요.
  * 찾기에서는 "비었는지 · 너무 길지 않은지"만 봐요. 가입 규칙(2~20자)이 바뀌기 전 가입자도 찾을 수 있게요.
  */
 export const findIdSchema = z.object({

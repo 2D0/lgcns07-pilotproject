@@ -13,9 +13,12 @@ import { fieldErrors } from "@/lib/field-errors";
 import { findIdSchema } from "@/schema/auth-schema";
 
 /**
- * 아이디(이메일) 찾기 카드 안쪽 — 닉네임 → 가려진 이메일 목록.
+ * 이메일 찾기 카드 안쪽 — 닉네임 → 가입한 이메일의 일부(u***@example.com).
  * 칸 검사는 화면에서 먼저(zod `findIdSchema`), 찾기는 서버 액션(`findIdAction`)으로 보내요.
- * 🔒 화면에는 가려진 이메일(u***@example.com)만 나와요. 전체 주소는 서버가 그 이메일로 보내요.
+ * 🔒 화면에는 가려진 이메일까지만 나와요.
+ *
+ * 🧪 시연용 기능이에요. 닉네임은 목록 · 댓글에 공개된 값이라, 실서비스라면
+ * 본인 인증(문자 등) 없이 닉네임만으로 남의 이메일 일부를 보여 주면 안 돼요 (#72).
  *
  * @example
  * <FindIdForm />
@@ -46,18 +49,16 @@ export function FindIdForm() {
 
   // ── 결과 ──
   if (state.result && !searchAgain) {
-    const { maskedEmails, emailed } = state.result;
+    const { maskedEmails } = state.result;
     const found = maskedEmails.length > 0;
 
     return (
       <div className="flex flex-col gap-4">
         {found ? (
           <>
-            <FormAlert tone="success">
-              가입한 아이디(이메일)를 찾았어요.
-            </FormAlert>
+            <FormAlert tone="success">가입한 이메일을 찾았어요.</FormAlert>
             <ul
-              aria-label="찾은 아이디"
+              aria-label="찾은 이메일"
               className="flex flex-col gap-1 rounded-md border border-border bg-inset p-3 font-mono text-sm"
             >
               {maskedEmails.map((email) => (
@@ -66,11 +67,9 @@ export function FindIdForm() {
                 </li>
               ))}
             </ul>
-            {emailed && (
-              <p className="text-xs text-muted-foreground">
-                전체 주소는 그 이메일로 보냈어요. 메일함을 확인해 주세요.
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              가입한 이메일의 일부예요. 기억나는 주소로 로그인해 보세요.
+            </p>
           </>
         ) : (
           <FormAlert>그 닉네임으로 가입한 계정을 찾지 못했어요.</FormAlert>
@@ -116,7 +115,8 @@ export function FindIdForm() {
       className="flex flex-col gap-4"
     >
       <p className="text-sm text-muted-foreground">
-        소소스터디의 아이디는 가입한 이메일이에요. 닉네임으로 찾아 드려요.
+        소소스터디는 이메일로 로그인해요. 닉네임을 넣으면 가입한 이메일의 일부를
+        알려 드려요.
       </p>
 
       <FormField id="nickname" label="닉네임" error={errors.nickname}>
@@ -133,7 +133,7 @@ export function FindIdForm() {
       {state.formError && <FormAlert tone="error">{state.formError}</FormAlert>}
 
       <SubmitButton pendingText="찾는 중…" className="w-full">
-        아이디 찾기
+        이메일 찾기
       </SubmitButton>
     </form>
   );

@@ -56,23 +56,22 @@ export async function registerUser(input: {
   };
 }
 
-// 아이디(이메일) 찾기 — POST /api/v1/auth/find-id { name }
-// 가려진 이메일(u***@example.com) 목록을 돌려주고, 전체 주소는 서버가 그 이메일로 보내요
+// 이메일 찾기 — POST /api/v1/auth/find-id { name }
+// 닉네임으로 가려진 이메일(u***@example.com) 목록을 받아요.
+// API는 "전체 주소를 그 이메일로 보냈는지"(emailed)도 알려 주지만 우리는 쓰지 않아요:
+// 그 메일을 읽을 수 있으면 이미 주소를 아는 거라, 화면에서는 가려진 이메일까지만 보여 줘요 (#72)
 export async function findLoginId(
   name: string,
-): Promise<ApiResponse<{ maskedEmails: string[]; emailed: boolean } | null>> {
-  const result = await apiRequest<{
-    maskedEmails?: string[];
-    emailed?: boolean;
-  }>(apiPaths.auth.findId, { method: "POST", body: { name } });
+): Promise<ApiResponse<{ maskedEmails: string[] } | null>> {
+  const result = await apiRequest<{ maskedEmails?: string[] }>(
+    apiPaths.auth.findId,
+    { method: "POST", body: { name } },
+  );
   if (!result.success || !result.data) return { ...result, data: null };
   // 🔒 화면에 쓸 값만 골라요 (응답에 다른 값이 더 와도 넘기지 않아요)
   return {
     ...result,
-    data: {
-      maskedEmails: result.data.maskedEmails ?? [],
-      emailed: result.data.emailed ?? false,
-    },
+    data: { maskedEmails: result.data.maskedEmails ?? [] },
   };
 }
 

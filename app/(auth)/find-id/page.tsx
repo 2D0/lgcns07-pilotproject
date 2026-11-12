@@ -4,11 +4,12 @@ import { AuthCard } from "@/components/templates/auth-card";
 import { ResetOnLeave } from "@/components/templates/reset-on-leave";
 import { routes } from "@/config/routes";
 
-// 아이디(이메일) 찾기 — 담당: 이슈 #72. 로그인 화면의 "아이디 찾기" 링크가 여기로 와요
+// 이메일 찾기 — 담당: 이슈 #72. 로그인 화면의 "이메일 찾기" 링크가 여기로 와요
+// (우리 서비스는 따로 만든 아이디가 없고 이메일로 로그인해서 "아이디 찾기"가 아니라 "이메일 찾기"예요)
 export default function FindIdPage() {
   return (
     <AuthCard
-      title="아이디 찾기"
+      title="이메일 찾기"
       className="max-w-xs"
       footer={
         <p className="text-center text-sm">
