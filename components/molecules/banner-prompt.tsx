@@ -49,6 +49,7 @@ export function BannerPrompt({
   ...props
 }: BannerPromptProps) {
   const { api } = useCarousel(); // 캐러셀 리모컨
+  // 입력값은 폼(FormData)에서 읽어요. 이 ref는 자동 넘김이 "지금 입력 중인지" 볼 때만 써요
   const inputRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<BannerCommandResult | null>(null); // 마지막 답
   const [ghost, setGhost] = useState(""); // 저절로 쳐지는 글자
@@ -56,18 +57,19 @@ export function BannerPrompt({
   const handleEggDone = useCallback(() => setEgg(false), []);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // 페이지가 새로고침되지 않게
-    const input = inputRef.current;
-    if (!input) return;
+    event.preventDefault(); // 서버로 보내지 않아요 (새로고침 막기)
+    const form = event.currentTarget;
+    // 폼에 든 값은 폼에서 꺼내요 — <input name="command">
+    const command = String(new FormData(form).get("command") ?? "");
 
-    const next = runBannerCommand(input.value, names);
+    const next = runBannerCommand(command, names);
     if (next.move === "next") api?.scrollNext();
     else if (next.move === "prev") api?.scrollPrev();
     else if (typeof next.move === "number") api?.scrollTo(next.move);
 
     if (next.egg) setEgg(true); // 이미 나오는 중이면 그대로 (겹쳐 틀지 않아요)
     setResult(next);
-    input.value = "";
+    form.reset(); // 입력칸 비우기
   }
 
   // 자동 넘김: 일정 시간마다 "next"가 한 글자씩 쳐지고 다음 슬라이드로
@@ -131,6 +133,7 @@ export function BannerPrompt({
         <input
           ref={inputRef}
           type="text"
+          name="command"
           aria-label="배너 명령어 (help를 입력해 보세요)"
           placeholder={ghost || "help"}
           maxLength={BANNER_COMMAND_MAX_LENGTH}
