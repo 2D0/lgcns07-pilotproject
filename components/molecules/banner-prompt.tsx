@@ -54,7 +54,13 @@ export function BannerPrompt({
   const [result, setResult] = useState<BannerCommandResult | null>(null); // 마지막 답
   const [ghost, setGhost] = useState(""); // 저절로 쳐지는 글자
   const [egg, setEgg] = useState(false); // 이스터에그가 나오는 중인지
-  const handleEggDone = useCallback(() => setEgg(false), []);
+  // 이스터에그가 끝나면 "잔디를 심었어요"도 같이 지워요 (그사이 다른 명령어를 쳤으면 그 답은 남겨요)
+  const handleEggDone = useCallback(() => {
+    setEgg(false);
+    setResult((current) => (current?.egg ? null : current));
+  }, []);
+  // 이스터에그가 나오는 동안에는 답을 입력칸 자리에 보여 줘요
+  const eggMessage = egg && result?.egg ? result.message : "";
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // 서버로 보내지 않아요 (새로고침 막기)
@@ -135,7 +141,7 @@ export function BannerPrompt({
           type="text"
           name="command"
           aria-label="배너 명령어 (help를 입력해 보세요)"
-          placeholder={ghost || "help"}
+          placeholder={eggMessage || ghost || "help"}
           maxLength={BANNER_COMMAND_MAX_LENGTH}
           autoComplete="off"
           autoCapitalize="off"
@@ -145,7 +151,11 @@ export function BannerPrompt({
           onFocus={() => setGhost("")}
           className={cn(
             "w-40 shrink-0 bg-transparent caret-status-open outline-none",
-            ghost ? "placeholder:text-foreground" : "placeholder:text-subtle",
+            eggMessage
+              ? "placeholder:font-sans placeholder:text-status-open"
+              : ghost
+                ? "placeholder:text-foreground"
+                : "placeholder:text-subtle",
           )}
         />
         {/* 답은 글자로만 보여 줘요. 화면 읽기 프로그램도 읽어 줘요. 한글이 섞여서 글꼴은 본문 글꼴로 */}
@@ -154,6 +164,7 @@ export function BannerPrompt({
           className={cn(
             "min-w-0 truncate font-sans text-xs",
             result && toneClass[result.tone],
+            eggMessage && "sr-only", // 화면에는 입력칸 자리에 보이니까, 여기서는 읽어 주기만,
           )}
         >
           {result?.message}
