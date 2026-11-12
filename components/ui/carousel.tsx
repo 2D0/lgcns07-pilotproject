@@ -77,6 +77,8 @@ function Carousel({
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
+      // 우리가 더한 한 줄: 입력칸에서 글자를 고치는 중이면 ← → 로 슬라이드를 넘기지 않아요 (#59 명령어 줄)
+      if (event.target instanceof HTMLInputElement) return;
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         scrollPrev();

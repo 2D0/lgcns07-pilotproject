@@ -1,0 +1,154 @@
+"use client";
+
+import {
+  type ComponentProps,
+  type FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useCarousel } from "@/components/ui/carousel";
+import {
+  BANNER_COMMAND_MAX_LENGTH,
+  type BannerCommandResult,
+  runBannerCommand,
+} from "@/lib/banner-command";
+import { cn } from "@/lib/utils";
+
+const AUTO_COMMAND = "next"; // 가만히 두면 저절로 쳐지는 명령어
+const AUTO_EVERY_MS = 6000; // 몇 초마다
+const TYPE_EVERY_MS = 140; // 한 글자 치는 속도
+
+const toneClass: Record<BannerCommandResult["tone"], string> = {
+  ok: "text-status-open",
+  error: "text-destructive",
+  info: "text-muted-foreground",
+};
+
+type BannerPromptProps = Omit<
+  ComponentProps<"form">,
+  "onSubmit" | "children"
+> & {
+  /** 슬라이드 이름 목록 — `ls`에 나오고 `open 이름`으로 열어요 */
+  names: string[];
+};
+
+/**
+ * 배너 명령어 줄 — `<Carousel>` 안에 둬요.
+ * 명령어를 치고 Enter를 누르면 캐러셀을 움직여요 (next · prev · goto 2 · ls · open react.png · help).
+ * 아무도 안 건드리면 `next`가 저절로 쳐지면서 넘어가요.
+ *
+ * @example
+ * <BannerPrompt names={slides.map((slide) => slide.name)} className="hidden md:flex" />
+ */
+export function BannerPrompt({
+  names,
+  className,
+  ...props
+}: BannerPromptProps) {
+  const { api } = useCarousel(); // 캐러셀 리모컨
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [result, setResult] = useState<BannerCommandResult | null>(null); // 마지막 답
+  const [ghost, setGhost] = useState(""); // 저절로 쳐지는 글자
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); // 페이지가 새로고침되지 않게
+    const input = inputRef.current;
+    if (!input) return;
+
+    const next = runBannerCommand(input.value, names);
+    if (next.move === "next") api?.scrollNext();
+    else if (next.move === "prev") api?.scrollPrev();
+    else if (typeof next.move === "number") api?.scrollTo(next.move);
+
+    setResult(next);
+    input.value = "";
+  }
+
+  // 자동 넘김: 일정 시간마다 "next"가 한 글자씩 쳐지고 다음 슬라이드로
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!api || !input) return;
+    // "움직임 줄이기"를 켠 사람에게는 자동 넘김을 하지 않아요
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // 사용자가 배너를 한 번이라도 누르면 자동 넘김을 멈춰요
+    const carousel = input.closest('[data-slot="carousel"]');
+    let stopped = false;
+    const stop = () => {
+      stopped = true;
+    };
+    carousel?.addEventListener("pointerdown", stop);
+
+    let typing: number | undefined;
+    const every = window.setInterval(() => {
+      const busy =
+        stopped ||
+        document.hidden || // 다른 탭을 보고 있음
+        input.offsetParent === null || // 명령어 줄이 숨겨져 있음 (폰)
+        input.value !== "" || // 뭔가 입력하는 중
+        document.activeElement === input;
+      if (busy) return;
+
+      let typed = 0;
+      typing = window.setInterval(() => {
+        typed += 1;
+        if (typed <= AUTO_COMMAND.length) {
+          setGhost(AUTO_COMMAND.slice(0, typed));
+          return;
+        }
+        window.clearInterval(typing);
+        setGhost("");
+        if (!stopped) api.scrollNext();
+      }, TYPE_EVERY_MS);
+    }, AUTO_EVERY_MS);
+
+    return () => {
+      window.clearInterval(every);
+      window.clearInterval(typing);
+      carousel?.removeEventListener("pointerdown", stop);
+    };
+  }, [api]);
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className={cn(
+        "items-center gap-2 bg-card py-2 pr-36 pl-4 font-mono text-sm",
+        className,
+      )}
+      {...props}
+    >
+      <span aria-hidden className="font-bold text-status-open">
+        $
+      </span>
+      <input
+        ref={inputRef}
+        type="text"
+        aria-label="배너 명령어 (help를 입력해 보세요)"
+        placeholder={ghost || "help"}
+        maxLength={BANNER_COMMAND_MAX_LENGTH}
+        autoComplete="off"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        enterKeyHint="go"
+        onFocus={() => setGhost("")}
+        className={cn(
+          "w-40 shrink-0 bg-transparent caret-status-open outline-none",
+          ghost ? "placeholder:text-foreground" : "placeholder:text-subtle",
+        )}
+      />
+      {/* 답은 글자로만 보여 줘요. 화면 읽기 프로그램도 읽어 줘요 */}
+      <output
+        aria-live="polite"
+        className={cn(
+          "min-w-0 truncate text-xs",
+          result && toneClass[result.tone],
+        )}
+      >
+        {result?.message}
+      </output>
+    </form>
+  );
+}
