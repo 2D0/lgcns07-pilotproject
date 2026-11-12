@@ -56,6 +56,26 @@ export async function registerUser(input: {
   };
 }
 
+// 아이디(이메일) 찾기 — POST /api/v1/auth/find-id { name }
+// 가려진 이메일(u***@example.com) 목록을 돌려주고, 전체 주소는 서버가 그 이메일로 보내요
+export async function findLoginId(
+  name: string,
+): Promise<ApiResponse<{ maskedEmails: string[]; emailed: boolean } | null>> {
+  const result = await apiRequest<{
+    maskedEmails?: string[];
+    emailed?: boolean;
+  }>(apiPaths.auth.findId, { method: "POST", body: { name } });
+  if (!result.success || !result.data) return { ...result, data: null };
+  // 🔒 화면에 쓸 값만 골라요 (응답에 다른 값이 더 와도 넘기지 않아요)
+  return {
+    ...result,
+    data: {
+      maskedEmails: result.data.maskedEmails ?? [],
+      emailed: result.data.emailed ?? false,
+    },
+  };
+}
+
 // 내 정보 — GET /api/v1/auth/me (⑧ 프로필)
 export async function getMyAccount(
   token: string,
