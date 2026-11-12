@@ -3,10 +3,12 @@
 import {
   type ComponentProps,
   type FormEvent,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { GrassMosaic } from "@/components/molecules/grass-mosaic";
 import { useCarousel } from "@/components/ui/carousel";
 import {
   BANNER_COMMAND_MAX_LENGTH,
@@ -50,6 +52,8 @@ export function BannerPrompt({
   const inputRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<BannerCommandResult | null>(null); // 마지막 답
   const [ghost, setGhost] = useState(""); // 저절로 쳐지는 글자
+  const [egg, setEgg] = useState(false); // 이스터에그가 나오는 중인지
+  const handleEggDone = useCallback(() => setEgg(false), []);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // 페이지가 새로고침되지 않게
@@ -61,6 +65,7 @@ export function BannerPrompt({
     else if (next.move === "prev") api?.scrollPrev();
     else if (typeof next.move === "number") api?.scrollTo(next.move);
 
+    if (next.egg) setEgg(true); // 이미 나오는 중이면 그대로 (겹쳐 틀지 않아요)
     setResult(next);
     input.value = "";
   }
@@ -111,44 +116,48 @@ export function BannerPrompt({
   }, [api]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn(
-        "items-center gap-2 bg-card py-2 pr-36 pl-4 font-mono text-sm",
-        className,
-      )}
-      {...props}
-    >
-      <span aria-hidden className="font-bold text-status-open">
-        $
-      </span>
-      <input
-        ref={inputRef}
-        type="text"
-        aria-label="배너 명령어 (help를 입력해 보세요)"
-        placeholder={ghost || "help"}
-        maxLength={BANNER_COMMAND_MAX_LENGTH}
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-        enterKeyHint="go"
-        onFocus={() => setGhost("")}
+    <>
+      <form
+        onSubmit={handleSubmit}
         className={cn(
-          "w-40 shrink-0 bg-transparent caret-status-open outline-none",
-          ghost ? "placeholder:text-foreground" : "placeholder:text-subtle",
+          "items-center gap-2 bg-card py-2 pr-36 pl-4 font-mono text-sm",
+          className,
         )}
-      />
-      {/* 답은 글자로만 보여 줘요. 화면 읽기 프로그램도 읽어 줘요 */}
-      <output
-        aria-live="polite"
-        className={cn(
-          "min-w-0 truncate text-xs",
-          result && toneClass[result.tone],
-        )}
+        {...props}
       >
-        {result?.message}
-      </output>
-    </form>
+        <span aria-hidden className="font-bold text-status-open">
+          $
+        </span>
+        <input
+          ref={inputRef}
+          type="text"
+          aria-label="배너 명령어 (help를 입력해 보세요)"
+          placeholder={ghost || "help"}
+          maxLength={BANNER_COMMAND_MAX_LENGTH}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+          onFocus={() => setGhost("")}
+          className={cn(
+            "w-40 shrink-0 bg-transparent caret-status-open outline-none",
+            ghost ? "placeholder:text-foreground" : "placeholder:text-subtle",
+          )}
+        />
+        {/* 답은 글자로만 보여 줘요. 화면 읽기 프로그램도 읽어 줘요. 한글이 섞여서 글꼴은 본문 글꼴로 */}
+        <output
+          aria-live="polite"
+          className={cn(
+            "min-w-0 truncate font-sans text-xs",
+            result && toneClass[result.tone],
+          )}
+        >
+          {result?.message}
+        </output>
+      </form>
+      {/* 🥚 숨은 명령어를 쳤을 때만 만들고, 끝나면 지워요 */}
+      {egg && <GrassMosaic onDone={handleEggDone} />}
+    </>
   );
 }

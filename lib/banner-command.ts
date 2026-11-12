@@ -10,6 +10,8 @@ export type BannerCommandResult = {
   tone: "ok" | "error" | "info";
   /** 슬라이드를 옮겨야 하면: 다음 · 이전 · 몇 번(0부터) */
   move?: "next" | "prev" | number;
+  /** 이스터에그(잔디 모자이크)를 틀어야 하면 true */
+  egg?: boolean;
 };
 
 /**
@@ -22,6 +24,7 @@ export type BannerCommandResult = {
  * runBannerCommand("next", names)           // { message: "", tone: "ok", move: "next" }
  * runBannerCommand("open algo.png", names)  // { message: "algo.png", tone: "ok", move: 2 }
  * runBannerCommand("hello", names)          // { message: "command not found: hello", tone: "error" }
+ * runBannerCommand("git commit", names)     // { message: "잔디를 심었어요 🌱", tone: "ok", egg: true }
  */
 export function runBannerCommand(
   input: string,
@@ -74,9 +77,16 @@ export function runBannerCommand(
 
     case "help":
       return {
-        message: "next · prev · goto 2 · ls · open react.png",
+        message: "next · prev · goto 2 · ls · open react.png · 숨은 명령어 1개",
         tone: "info",
       };
+
+    // 🥚 이스터에그: 커밋 = 잔디 심기
+    case "git":
+      if (argument === "commit") {
+        return { message: "잔디를 심었어요 🌱", tone: "ok", egg: true };
+      }
+      return { message: "git: 여기서는 commit만 돼요", tone: "info" };
 
     case "sudo":
     case "rm":
