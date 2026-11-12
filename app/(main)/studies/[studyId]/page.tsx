@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getStudyDetail } from "@/actions/study-actions";
 import { StatusBadge } from "@/components/atoms/status-badge";
+import { MarkdownText } from "@/components/molecules/markdown-text";
 import { Panel } from "@/components/molecules/panel";
 import { StudyInfoCard } from "@/components/organisms/study-info-card";
 import { PageHeader } from "@/components/templates/page-header";
@@ -121,9 +122,8 @@ async function StudyDetail({
         {/* 왼쪽: 소개 + 댓글 (피그마 ②) — 댓글이 아래를 채워서 "화면 꽉 채우기"는 소개 상자 대신 이 묶음이 해요 */}
         <div className="flex min-w-0 flex-1 flex-col gap-8">
           <Panel header={<>{author} · 스터디 소개</>}>
-            <p className="max-w-prose wrap-break-word break-keep whitespace-pre-line">
-              {study.content}
-            </p>
+            {/* #26 소개 글 서식 — 소제목 · 목록 · 굵게 · 링크 */}
+            <MarkdownText>{study.content}</MarkdownText>
           </Panel>
           <CommentSection studyId={study.id} isLoggedIn={!!me} />
         </div>
